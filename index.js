@@ -22,7 +22,6 @@ var isNode = require('itsa-utils').isNode,
       DOCUMENT = WINDOW.document,
       documentElement = DOCUMENT.documentElement,
       BODY = DOCUMENT.body,
-      objectAssign = require('object-assign'),
       createHistory = require('history').createHistory,
       controller = require('itsa-client-controller'),
       io = require('itsa-fetch').io,
@@ -422,11 +421,15 @@ var Router = Classes.createClass(function(routes) {
         },
 
         scrollToNode: function(node) {
-            node.itsa_scrollIntoView(true, true, this._scrollAnchorTime);
+            node.itsa_scrollIntoView(true, true, this._scrollAnchorTime, this._scrollAnchorMarginTop);
         },
 
         setScrollAnchorTime: function(value) {
             this._scrollAnchorTime = value || 0;
+        },
+
+        setScrollAnchorMarginTop: function(value) {
+            this._scrollAnchorMarginTop = value;
         },
 
         /*
@@ -468,7 +471,9 @@ var Router = Classes.createClass(function(routes) {
                 instance.unlistenHistory = history.listen(function(location) {
                     var hashNode;
                     location.state || (location = instance.initialLocation);
-                    if (location.state && (location.state.view===controller.getView()) && (location.state.path===WINDOW.location) && (location.state.lang==controller.getLang())) {
+                    /* note: if you should enable (location.state.path===WINDOW.location) again, then consider that WINDOW.location is an object --> need one of its properties! */
+                    // if (location.state && (location.state.view===controller.getView()) && (location.state.path===WINDOW.location) && (location.state.lang==controller.getLang())) {
+                    if (location.state && (location.state.view===controller.getView()) && (location.state.lang==controller.getLang())) {
                         hashNode = location.hash && DOCUMENT.getElementById(location.hash.substr(1));
                         hashNode && instance.scrollToNode(hashNode);
                         instance._saveHistoryHash(location.hash); // fire event without save history
